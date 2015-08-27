@@ -1,6 +1,4 @@
-all: MVar_test chameneos
-
-chameneos: chameneos-ghc chameneos-eff
+all: chameneos-ghc chameneos-eff chameneos-monad
 
 #Will only work with vanilla ocaml
 chameneos-systhr: chameneos_systhr.ml
@@ -20,10 +18,6 @@ chameneos-eff: chameneos.ml
 
 chameneos-monad: chameneos_monad.ml
 	ocamlc -o chameneos_monad sched_monad.mli sched_monad.ml MVar_monad.mli MVar_monad.ml chameneos_monad.ml
-
-#Needs multicore branch
-MVar_test:
-	ocamlc -o MVar_test sched.mli sched.ml MVar.mli MVar.ml MVar_test.ml
 
 clean:
 	rm -f *.cmi *.cmx a.out *~ eff *.cmo MVar_test chameneos-eff chameneos-ghc \

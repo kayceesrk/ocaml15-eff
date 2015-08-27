@@ -9,11 +9,11 @@ type 'a mv_state =
 
 type 'a t = 'a mv_state ref
 
-let new_empty_mvar () = ref (Empty (Queue.create ()))
+let create_empty () = ref (Empty (Queue.create ()))
 
-let new_mvar v = ref (Full (v, Queue.create ()))
+let create v = ref (Full (v, Queue.create ()))
 
-let put_mvar mv v =
+let put mv v =
   S.suspend ( fun k ->
   match !mv with
   | Full (v', q) ->
@@ -29,7 +29,7 @@ let put_mvar mv v =
 
 let (>>) = S.(>>)
 
-let take_mvar mv =
+let take mv =
   S.suspend (fun k ->
   match !mv with
   | Empty q ->
@@ -42,5 +42,5 @@ let take_mvar mv =
       else
         let (v', t) = Queue.pop q in
         mv := Full (v', q);
-        Printf.printf "take_mvar: resume\n";
+        Printf.printf "take: resume\n";
         Some (v, Some (S.prepare t ())))

@@ -1,5 +1,5 @@
 type 'a t
-val new_mvar : 'a -> 'a t
-val new_empty_mvar : unit -> 'a t
-val put_mvar : 'a t -> 'a -> unit Sched_monad.t
-val take_mvar : 'a t -> 'a Sched_monad.t
+val create : 'a -> 'a t
+val create_empty : unit -> 'a t
+val put : 'a t -> 'a -> unit Sched_monad.t
+val take : 'a t -> 'a Sched_monad.t

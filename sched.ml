@@ -1,5 +1,3 @@
-open Printexc
-
 effect Fork  : (unit -> unit) -> unit
 effect Yield : unit
 
@@ -27,7 +25,7 @@ let run main =
     match f () with
     | () -> dequeue ()
     | exception e ->
-        ( print_string (to_string e);
+        ( print_string (Printexc.to_string e);
           dequeue () )
     (* effect / ('a eff) / ('a,'b) continuation *)
     | effect Yield k ->

@@ -17,8 +17,5 @@ type _ eff += Yield : unit eff
 (** [perform Yield] suspends the current thread and switches to the next thread from
     the run queue. *)
 
-type _ eff += Get_Tid : int eff
-(** [perform Get_Tid] returns the current thread identifier. *)
-
 val run : (unit -> unit) -> unit
 (** [run f] runs [f] with the cooperative-threaded scheduler. *)

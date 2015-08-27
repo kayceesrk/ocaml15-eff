@@ -37,23 +37,23 @@ type mp =
 | Somebody of int * chameneos * chameneos MVar.t
 
 let arrive (mpv : mp MVar.t) (finish : (int * int) MVar.t) (ch : chameneos) =
-  let waker = MVar.new_empty_mvar () in
+  let waker = MVar.create_empty () in
   let inc x i = if (x == ch) then i+1 else i in
   let rec go t b =
-    let w = MVar.take_mvar mpv in
+    let w = MVar.take mpv in
     match w with
     | Nobody 0 ->
-        MVar.put_mvar w mpv;
-        MVar.put_mvar (t,b) finish
+        MVar.put w mpv;
+        MVar.put (t,b) finish
     | Nobody q ->
-         MVar.put_mvar (Somebody (q, ch, waker)) mpv;
-         go (t+1) @@ inc (MVar.take_mvar waker) b
+         MVar.put (Somebody (q, ch, waker)) mpv;
+         go (t+1) @@ inc (MVar.take waker) b
     | Somebody (q, ch', waker') ->
-        MVar.put_mvar (Nobody (q - 1)) mpv;
+        MVar.put (Nobody (q - 1)) mpv;
         let c'' = Color.complement !ch !ch' in
         ch := c'';
         ch' := c'';
-        MVar.put_mvar ch waker';
+        MVar.put ch waker';
         go (t+1) @@ inc ch' b
 in go 0 0
 
@@ -96,12 +96,12 @@ let fork f = Effects.perform @@ Sched.Fork f
 let work colors n =
   let () = List.iter colors ~f:(fun c ->
               printf " %s" (Color.to_string c)); printf "\n" in
-  let fs = tabulate MVar.new_empty_mvar (List.length colors) in
-  let mpv = MVar.new_mvar (Nobody n) in
+  let fs = tabulate MVar.create_empty (List.length colors) in
+  let mpv = MVar.create (Nobody n) in
   let chams = List.map ~f:(fun c -> ref c) colors in
   let () = List.iter2 ~f:(fun fin ch ->
               fork (fun () -> arrive mpv fin ch)) fs chams in
-  let ns = List.map ~f:MVar.take_mvar fs in
+  let ns = List.map ~f:MVar.take fs in
   let () = List.iter ~f:(fun (n,b) -> print_int n; spell_int b; printf "\n") ns in
   let sum_meets = List.fold_left ~init:0 ~f:(fun acc (n,_) -> n+acc) ns in
   spell_int sum_meets; printf "\n"
