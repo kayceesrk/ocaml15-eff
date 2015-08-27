@@ -10,7 +10,6 @@ chameneos-systhr: chameneos_systhr.ml
 chameneos-lwt: chameneos_lwt.ml
 	ocamlfind ocamlc -o chameneos-lwt -thread -package lwt,lwt.unix,threads -linkpkg chameneos_lwt.ml
 
-
 chameneos-ghc: chameneos.hs
 	ghc -o chameneos-ghc -cpp -XBangPatterns -XScopedTypeVariables \
 	-XGeneralizedNewtypeDeriving chameneos.hs
