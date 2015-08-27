@@ -23,4 +23,4 @@ aio: aio.ml
 
 clean:
 	rm -f *.cmi *.cmo *.o concurrent generator *~ a.out state reify_reflect ref transaction aio
-	make -Cmvar clean
+	make -Cchameneos-redux clean
