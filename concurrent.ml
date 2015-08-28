@@ -1,16 +1,18 @@
-(* Demonstrate the concurrent scheduler *)
+(* Demonstrate the concurrent scheduler
+  ------------------------------------
+   Spawn binary tree of tasks in depth-first order
+
+       ************
+        Fiber tree
+       ************
+             0
+           /  \
+          1    2
+         / \  / \
+        3   4 5  6
+*)
 
 let log = Printf.printf
-
-(*   ************
-      Fiber tree
-     ************
-           0
-         /  \
-        1    2
-       / \  / \
-      3   4 5  6
-*)
 
 let rec f id depth =
   log "Starting number %i\n%!" id;
