@@ -3,7 +3,7 @@ open Printf
 effect Fork    : (unit -> unit) -> unit
 effect Yield   : unit
 
-type 'a cont = Cont : ('a,'b) continuation -> 'a cont
+type 'a cont = ('a,unit) continuation
 effect Suspend : ('a cont -> unit) -> 'a
 effect Resume  : 'a cont * 'a -> unit
 
@@ -21,8 +21,9 @@ let run main =
     | () -> dequeue ()
     | effect Yield k -> enqueue k (); dequeue ()
     | effect (Fork f) k -> enqueue k (); spawn f
-    | effect (Suspend f) k -> f (Cont k); dequeue ()
-    | effect (Resume (Cont k', v)) k -> enqueue k' v; continue k ()
+    | effect (Suspend f) k -> f k; dequeue ()
+    | effect (Resume (k', v)) k ->
+        enqueue k' v; ignore (continue k ())
   in
   spawn main
 

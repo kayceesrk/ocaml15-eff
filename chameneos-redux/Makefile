@@ -1,4 +1,7 @@
-all: chameneos-ghc chameneos-eff chameneos-monad
+all: chameneos-ghc chameneos-eff chameneos-monad mvar-test
+
+mvar-test: MVar_test.ml
+	ocamlc -o MVar_test sched.mli sched.ml MVar.mli MVar.ml MVar_test.ml
 
 #Will only work with vanilla ocaml
 chameneos-systhr: chameneos_systhr.ml

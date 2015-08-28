@@ -18,5 +18,6 @@ reify_reflect: reify_reflect.ml
 	ocamlc -o reify_reflect reify_reflect.ml
 
 clean:
-	rm -f *.cmi *.cmo *.o concurrent generator *~ a.out state reify_reflect ref transaction aio simple_1 simple_2
+	rm -f *.cmi *.cmo *.o concurrent generator *~ a.out state reify_reflect ref \
+		transaction aio simple_1 simple_2 *cmx
 	make -Cchameneos-redux clean
