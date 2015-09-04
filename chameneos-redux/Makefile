@@ -1,4 +1,4 @@
-all: chameneos-ghc chameneos-eff chameneos-monad mvar-test chameneos-multi
+all: chameneos-ghc chameneos-eff chameneos-monad mvar-test
 
 mvar-test: MVar_test.ml
 	ocamlc -o MVar_test sched.mli sched.ml MVar.mli MVar.ml MVar_test.ml
@@ -18,13 +18,6 @@ chameneos-ghc: chameneos.hs
 #Needs multicore branch
 chameneos-eff: chameneos.ml
 	ocamlc -o chameneos-eff sched.mli sched.ml MVar.mli MVar.ml chameneos.ml
-
-#Needs multicore branch
-chameneos-multi: chameneos_multi.ml
-	ocamlc -o chameneos-multi Backoff.mli Backoff.ml CAS.mli CAS.ml \
-		MSQueue.mli MSQueue.ml sched_ws.mli sched_ws.ml MVar.mli \
-		MVar.ml chameneos_multi.ml
-
 
 chameneos-monad: chameneos_monad.ml
 	ocamlc -o chameneos_monad sched_monad.mli sched_monad.ml MVar_monad.mli MVar_monad.ml chameneos_monad.ml
