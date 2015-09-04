@@ -27,7 +27,7 @@ module type SCHED = sig
       execution of the current thread, and switches to the next thread in the
       scheduler's queue. *)
 
-  effect Resume  : 'a cont * 'a -> unit
+  effect Resume  : ('a cont * 'a) -> unit
   (** [Perform @@ Resume (k,v)] prepares the suspended continuation [k] with value [v] and
       enqueues it to the scheduler queue. *)
 end

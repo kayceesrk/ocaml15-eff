@@ -5,7 +5,7 @@ effect Yield   : unit
 
 type 'a cont = ('a,unit) continuation
 effect Suspend : ('a cont -> unit) -> 'a
-effect Resume  : 'a cont * 'a -> unit
+effect Resume  : ('a cont * 'a) -> unit
 
 let run main =
   let run_q = Queue.create () in

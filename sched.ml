@@ -1,11 +1,10 @@
 effect Fork  : (unit -> unit) -> unit
-effect Yield : unit
-
 let fork f = perform (Fork f)
+
+effect Yield : unit
 let yield () = perform Yield
 
 (* A concurrent round-robin scheduler *)
-
 let run main =
   let run_q = Queue.create () in
   let enqueue k = Queue.push k run_q in
