@@ -23,7 +23,7 @@ let run main =
     | effect (Fork f) k -> enqueue k (); spawn f
     | effect (Suspend f) k -> f k; dequeue ()
     | effect (Resume (k', v)) k ->
-        enqueue k' v; ignore (continue k ())
+        enqueue k' v; continue k ()
   in
   spawn main
 

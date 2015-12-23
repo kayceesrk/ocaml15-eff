@@ -26,4 +26,4 @@ chameneos-monad: chameneos_monad.ml
 
 clean:
 	rm -f *.cmi *.cmx a.out *~ eff *.cmo MVar_test chameneos-eff chameneos-ghc \
-	*.hi *.o chameneos-systhr chameneos-lwt *.annot
+	*.hi *.o chameneos-systhr chameneos-lwt *.annot *.s op chameneos_monad *.prof_*

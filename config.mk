@@ -1,1 +1,1 @@
-OCAMLC=ocamlopt.opt -runtime-variant d
+OCAMLC=ocamlopt.opt 
