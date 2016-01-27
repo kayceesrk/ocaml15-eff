@@ -23,3 +23,4 @@ clean:
 	rm -f *.cmi *.cmo *.o concurrent generator *~ a.out state reify_reflect ref \
 		transaction aio simple_1 simple_2 *cmx
 	make -Cchameneos-redux clean
+	make -Casync-io clean
