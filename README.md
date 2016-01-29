@@ -5,7 +5,7 @@ algebraic effects: https://github.com/kayceesrk/ocaml/tree/effects.
 ## Installing OCaml-effects compiler
 
   1. Install [opam-compiler-conf](https://github.com/gasche/opam-compiler-conf)
-	2. Get the OCaml-effects compiler
+  2. Get the OCaml-effects compiler
 
 		$ git clone https://github.com/ocamllabs/ocaml-effects
 		$ cd ocaml-effects
@@ -14,4 +14,4 @@ algebraic effects: https://github.com/kayceesrk/ocaml/tree/effects.
 		$ make world.opt
 		$ opam compiler-conf install
 
-	3. Use `opam switch` to switch to the newly installed compiler
+  3. Use `opam switch` to switch to the newly installed compiler
