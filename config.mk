@@ -1,1 +1,1 @@
-OCAMLC=ocamlopt
+OCAMLC=ocamlc
