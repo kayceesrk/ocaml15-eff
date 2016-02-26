@@ -1,5 +1,7 @@
 include ../config.mk
 
+REAGENTS_PATH=/Users/kc/research/reagents/_build
+
 all: chameneos-ghc chameneos-eff chameneos-monad mvar-test
 
 mvar-test: MVar_test.ml
@@ -19,7 +21,7 @@ chameneos-ghc: chameneos.hs
 
 #Needs multicore branch
 chameneos-eff: chameneos.ml
-	$(OCAMLC) -o chameneos-eff sched.mli sched.ml MVar.mli MVar.ml chameneos.ml
+	$(OCAMLC) -o chameneos-eff -I $(REAGENTS_PATH) Reagents.cma Reagents_sync.cma Backoff_l.ml CAS_l.ml MSQueue_l.ml Sched_ws.ml MVar.mli MVar.ml chameneos.ml
 
 chameneos-monad: chameneos_monad.ml
 	$(OCAMLC) -o chameneos_monad sched_monad.mli sched_monad.ml MVar_monad.mli MVar_monad.ml chameneos_monad.ml

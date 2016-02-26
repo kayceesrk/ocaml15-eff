@@ -28,6 +28,8 @@ module Color = struct
   let all = [ Blue; Red; Yellow ]
 end
 
+module Sched = Sched_ws.Make(struct let num_domains = 4 end)
+
 module MVar = MVar.Make (Sched)
 
 type chameneos = Color.t ref
@@ -91,8 +93,6 @@ let rec tabulate' acc f = function
 
 let tabulate f n = List.rev @@ tabulate' [] f n
 
-let fork f = perform @@ Sched.Fork f
-
 let work colors n =
   let () = List.iter colors ~f:(fun c ->
               printf " %s" (Color.to_string c)); printf "\n" in
@@ -100,7 +100,7 @@ let work colors n =
   let mpv = MVar.create (Nobody n) in
   let chams = List.map ~f:(fun c -> ref c) colors in
   let () = List.iter2 ~f:(fun fin ch ->
-              fork (fun () -> arrive mpv fin ch)) fs chams in
+              Sched.fork_rr (fun () -> arrive mpv fin ch)) fs chams in
   let ns = List.map ~f:MVar.take fs in
   let () = List.iter ~f:(fun (n,b) -> print_int n; spell_int b; printf "\n") ns in
   let sum_meets = List.fold_left ~init:0 ~f:(fun acc (n,_) -> n+acc) ns in
