@@ -10,18 +10,40 @@ module type SCHED = sig
   type 'a cont
   val suspend : ('a cont -> 'a option) -> 'a
   val resume  : 'a cont -> 'a -> unit
+  val yield   : unit -> unit
 end
+
 
 module Make (S : SCHED) : S = struct
 
-  module TS : Reagents.Scheduler = struct
-    include S
-    let get_tid () = 0
-  end
+  module Lock : sig
+    type t
+    val create : unit -> t
+    val acq      : t -> unit
+    val rel      : t -> unit
+  end = struct
 
-  module Reagents = Reagents.Make(TS)
-  module RS = Reagents_sync.Make(Reagents)
-  module Lock = RS.Lock
+    type t = int ref
+
+    let create () = ref 0
+
+    let compare_and_swap r x y =
+     ( Obj.compare_and_swap_field (Obj.repr r) 0 (Obj.repr x) (Obj.repr y))
+
+     let rec acq l = 
+       let rec loop = function
+         | 0 -> (S.yield (); loop 1024)
+         | n ->
+             if !l == 1 then loop (n - 1)
+             else if compare_and_swap l 0 1 then ()
+             else loop 1024
+       in 
+       loop 1024
+
+     let rel l = 
+       if compare_and_swap l 1 0 then ()
+       else failwith "Lock.rel"
+  end
 
   (** The state of mvar is either [Full v q] filled with value [v] and a queue
       [q] of threads waiting to fill the mvar, or [Empty q], with a queue [q] of
@@ -42,8 +64,8 @@ module Make (S : SCHED) : S = struct
     {state = ref (Full (v, Queue.create ()));
      lock = Lock.create ()}
 
-  let acq l = Reagents.run (Lock.acq l) ()
-  let rel l = ignore (Reagents.run (Lock.rel l) ())
+  let acq = Lock.acq
+  let rel = Lock.rel 
 
   let put v mv =
     acq mv.lock;

@@ -20,9 +20,6 @@
 (* TODO KC: Replace with concurrent lock free bag --
  * http://dl.acm.org/citation.cfm?id=1989550 *)
 
-module CAS = CAS_l
-module Backoff = Backoff_l
-
 open CAS.Sugar
 
 type 'a node =

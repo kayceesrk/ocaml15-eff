@@ -21,17 +21,13 @@ module type S = sig
   val fork    : (unit -> unit) -> unit
   val fork_rr : (unit -> unit) -> unit
   val fork_on : (unit -> unit) -> int -> unit
+  val reset   : unit -> unit
   val yield   : unit -> unit
   val get_tid : unit -> int
   val run     : (unit -> unit) -> unit
 end
 
 module Make (S : sig val num_domains : int end) : S = struct
-
-  module CAS = CAS_l
-  module MSQueue = MSQueue_l
-  module Backoff = Backoff_l
-
 
   type queue_num = int
   type 'a cont = ('a, unit) continuation * queue_num
@@ -57,6 +53,7 @@ module Make (S : sig val num_domains : int end) : S = struct
     x := succ !x;
     old
 
+  let reset () = next_domain := 0
   open CAS.Sugar
 
   let fork_on f dom_id = perform (ForkOn (f, dom_id))
@@ -98,7 +95,6 @@ module Make (S : sig val num_domains : int end) : S = struct
             match f (k, Domain.self()) with
               | None -> dequeue ()
               | Some v -> continue k v
-              | effect (Resume ((t, qid), v)) k -> enqueue k qid; continue t v
           end
       | effect (Resume ((t,qid), v)) k -> enqueue k qid; continue t v
       | effect GetTid k -> continue k tid
@@ -111,7 +107,7 @@ module Make (S : sig val num_domains : int end) : S = struct
   let run_with f num_domains =
     let started = ref 0 in
     let worker () =
-      let b = Backoff.create ~max:16 () in
+      let b = Backoff.create () in
       let rec loop () =
         if !started = 1 then dequeue ()
         else (Backoff.once b; loop ())

@@ -121,10 +121,10 @@ let try_map r f =
       if r <!= s --> v then Success s else Failed
 
 let map r f =
-  let b = Backoff_l.create () in
+  let b = Backoff.create () in
   let rec loop () =
     match try_map r f with
-    | Failed -> (Backoff_l.once b; loop ())
+    | Failed -> (Backoff.once b; loop ())
     | v -> v
   in loop ()
 

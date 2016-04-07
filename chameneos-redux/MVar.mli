@@ -30,6 +30,8 @@ module type SCHED = sig
   val resume  : 'a cont -> 'a -> unit
   (** [resume (k,v)] prepares the suspended continuation [k] with value [v] and
       enqueues it to the scheduler queue. *)
+
+  val yield : unit -> unit
 end
 
 module Make (S : SCHED) : S
