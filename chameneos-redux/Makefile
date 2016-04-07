@@ -1,7 +1,5 @@
 include ../config.mk
 
-REAGENTS_PATH=/home/kc/reagents/_build
-
 all: chameneos-ghc chameneos-eff chameneos-monad mvar-test
 
 mvar-test: MVar_test.ml
