@@ -28,7 +28,18 @@ module Color = struct
   let all = [ Blue; Red; Yellow ]
 end
 
-module Sched = Sched_ws.Make(struct let num_domains = 4 end)
+let num_iters =
+  try
+    int_of_string (Sys.argv.(1))
+  with
+  | _ -> 600
+
+let num_domains = 
+  try int_of_string (Sys.argv.(2))
+  with
+  | _ -> 1
+
+module Sched = Sched_ws.Make(struct let num_domains = num_domains end)
 
 module MVar = MVar.Make (Sched)
 
@@ -107,17 +118,11 @@ let work colors n =
   spell_int sum_meets; printf "\n"
 
 let main () =
-  let n =
-    try
-      int_of_string (Sys.argv.(1))
-    with
-    | _ -> 600
-  in
   print_complements ();
   let module C = Color in
-  work [ C.Blue; C.Red; C.Yellow ] n;
+  work [ C.Blue; C.Red; C.Yellow ] num_iters;
   printf "\n";
-  work [ C.Blue; C.Red; C.Yellow; C.Red; C.Yellow; C.Blue; C.Red; C.Yellow; C.Red; C.Blue ] n;
+  work [ C.Blue; C.Red; C.Yellow; C.Red; C.Yellow; C.Blue; C.Red; C.Yellow; C.Red; C.Blue ] num_iters;
   printf "\n"
 
 let () = Sched.run main
