@@ -32,6 +32,7 @@ module type SCHED = sig
       enqueues it to the scheduler queue. *)
 
   val yield : unit -> unit
+  val get_tid : unit -> int
 end
 
 module Make (S : SCHED) : S

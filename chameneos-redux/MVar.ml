@@ -11,6 +11,7 @@ module type SCHED = sig
   val suspend : ('a cont -> 'a option) -> 'a
   val resume  : 'a cont -> 'a -> unit
   val yield   : unit -> unit
+  val get_tid : unit -> int
 end
 
 
@@ -54,52 +55,65 @@ module Make (S : SCHED) : S = struct
 
   type 'a t =
     {state : 'a mv_state ref;
-     lock  : Lock.t}
+     lock  : Lock.t; 
+     id    : int}
+
+  let next_mvar_id = CAS.ref 0
 
   let create_empty () =
     {state = ref (Empty (Queue.create ()));
-     lock = Lock.create ()}
+     lock = Lock.create ();
+     id = CAS.incr next_mvar_id}
 
   let create v =
     {state = ref (Full (v, Queue.create ()));
-     lock = Lock.create ()}
+     lock = Lock.create ();
+     id = CAS.incr next_mvar_id}
 
   let acq = Lock.acq
   let rel = Lock.rel 
 
   let put v mv =
+    let tid = S.get_tid () in
     acq mv.lock;
     match !(mv.state) with
     | Full (v', q) ->
         S.suspend (fun k ->
           Queue.push (v,k) q;
+          (* Printf.printf "[%d,%d] mv=%d Full q_len=%d\n%!" (Domain.self ()) tid mv.id @@ Queue.length q; *)
           rel mv.lock;
           None)
     | Empty q ->
         if Queue.is_empty q then begin
           mv.state := Full (v, Queue.create ());
+          (* Printf.printf "[%d,%d] mv=%d Full q_len=%d\n%!" (Domain.self ()) tid mv.id 0; *)
           rel mv.lock
         end else
           let t = Queue.pop q in
+          (* Printf.printf "[%d,%d] mv=%d Empty q_len=%d\n%!" (Domain.self ()) tid mv.id @@ Queue.length q; *)
           rel mv.lock;
           S.resume t v
 
   let take mv =
+    let tid = S.get_tid () in
     acq mv.lock;
     match !(mv.state) with
     | Empty q ->
         S.suspend (fun k ->
          Queue.push k q;
+         (* Printf.printf "[%d,%d] mv=%d Empty q_len=%d\n%!" (Domain.self ()) tid mv.id @@ Queue.length q; *)
          rel mv.lock;
          None)
     | Full (v, q) ->
         if Queue.is_empty q then begin
           mv.state := Empty (Queue.create ());
+          (* Printf.printf "[%d,%d] mv=%d Empty q_len=%d\n%!" (Domain.self ()) tid mv.id 0; *)
           rel mv.lock;
           v
         end else
           let (v', t) = Queue.pop q in
           (mv.state := Full (v', q);
+           (* Printf.printf "[%d,%d] mv=%d Full q_len=%d\n%!" (Domain.self ()) tid mv.id @@ Queue.length q; *)
            rel mv.lock;
            S.resume t ();
            v)

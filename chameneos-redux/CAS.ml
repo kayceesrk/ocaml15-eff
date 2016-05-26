@@ -128,5 +128,9 @@ let map r f =
     | v -> v
   in loop ()
 
-let incr r = ignore @@ map r (fun x -> Some (x + 1))
+let incr r = 
+  match map r (fun x -> Some (x + 1)) with
+  | Success v -> v
+  | _ -> failwith "impossible: incr"
+
 let decr r = ignore @@ map r (fun x -> Some (x - 1))

@@ -61,11 +61,10 @@ module Make (S : sig val num_domains : int end) : S = struct
     perform (ForkOn (f, incr next_domain mod S.num_domains))
   let num_domains () = S.num_domains
 
-
-
   let sq = Array.init S.num_domains (fun _ -> MSQueue.create ())
 
-  let fresh_tid () = Oo.id (object end)
+  let next_tid = ref 0
+  let fresh_tid () = CAS.incr next_tid
 
   let enqueue c dom_id = MSQueue.push (Array.get sq dom_id) c
 
