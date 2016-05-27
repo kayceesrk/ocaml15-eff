@@ -120,8 +120,6 @@ let work colors n =
 let main () =
   print_complements ();
   let module C = Color in
-  work [ C.Blue; C.Red; C.Yellow ] num_iters;
-  printf "\n";
   work [ C.Blue; C.Red; C.Yellow; C.Red; C.Yellow; C.Blue; C.Red; C.Yellow; C.Red; C.Blue ] num_iters;
   printf "\n"
 
