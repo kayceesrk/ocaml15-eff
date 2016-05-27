@@ -19,7 +19,7 @@ chameneos-ghc: chameneos.hs
 
 #Needs multicore branch
 chameneos-eff: chameneos.ml
-	$(OCAMLC) -o chameneos-eff unix.cmxa Backoff.ml CAS.ml MSQueue.ml sched_ws.ml MVar.mli MVar.ml chameneos.ml
+	$(OCAMLC) -o chameneos-eff unix.cma Backoff.ml CAS.ml MSQueue.ml sched_ws.ml MVar.mli MVar.ml chameneos.ml
 
 chameneos-monad: chameneos_monad.ml
 	$(OCAMLC) -o chameneos_monad sched_monad.mli sched_monad.ml MVar_monad.mli MVar_monad.ml chameneos_monad.ml

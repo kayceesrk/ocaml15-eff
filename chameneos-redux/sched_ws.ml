@@ -21,6 +21,7 @@ module type S = sig
   val fork    : (unit -> unit) -> unit
   val fork_rr : (unit -> unit) -> unit
   val fork_on : (unit -> unit) -> int -> unit
+  val reset   : unit -> unit
   val yield   : unit -> unit
   val get_tid : unit -> int
   val run     : (unit -> unit) -> unit
@@ -46,12 +47,18 @@ module Make (S : sig val num_domains : int end) : S = struct
   effect ForkOn     : (unit -> unit) * int -> unit
 
   (* XXX unsafe with multiple schedulers *)
-  open CAS.Sugar
   let next_domain = ref 0
+  let incr x =
+    let old = !x in
+    x := succ !x;
+    old
+
+  let reset () = next_domain := 0
+  open CAS.Sugar
 
   let fork_on f dom_id = perform (ForkOn (f, dom_id))
   let fork_rr f =
-    perform (ForkOn (f, CAS.incr next_domain mod S.num_domains))
+    perform (ForkOn (f, incr next_domain mod S.num_domains))
   let num_domains () = S.num_domains
 
   let sq = Array.init S.num_domains (fun _ -> MSQueue.create ())
@@ -82,14 +89,18 @@ module Make (S : sig val num_domains : int end) : S = struct
       | () -> (CAS.decr num_threads; dequeue ())
       | effect (Fork f) k -> enqueue k (Domain.self ()); spawn f (fresh_tid ())
       | effect Yield k -> enqueue k (Domain.self ()); dequeue ()
-      | effect (Suspend f) k -> dequeue ()
+      | effect (Suspend f) k ->
+          begin
+            match f (k, Domain.self()) with
+              | None -> dequeue ()
+              | Some v -> continue k v
+          end
       | effect (Resume ((t,qid), v)) k -> enqueue k qid; continue t v
       | effect GetTid k -> continue k tid
       | effect (ForkOn (f, dom_id)) k ->
           (enqueue k dom_id;
-           let new_tid = fresh_tid () in
-           Printf.printf "ForkOn: %d tid=%d\n%!" dom_id new_tid;
-           spawn f new_tid)
+           Printf.printf "ForkOn: %d\n%!" dom_id;
+           spawn f (fresh_tid ()))
     end
 
   let run_with f num_domains =
