@@ -1,1 +1,1 @@
-OCAMLC=ocamlc
+OCAMLC=ocamlopt.opt
