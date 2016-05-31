@@ -14,6 +14,17 @@ module type SCHED = sig
   val get_tid : unit -> int
 end
 
+module Queue = struct
+  type 'a t = 'a list ref
+  let create () = ref []
+  let push v q = q := v::!q
+  let pop q = 
+    match !q with
+    | [] -> raise Not_found
+    | x::xs -> q := xs; x
+  let length q = List.length !q
+  let is_empty q = length q = 0
+end
 
 module Make (S : SCHED) : S = struct
 
@@ -74,7 +85,6 @@ module Make (S : SCHED) : S = struct
   let rel = Lock.rel 
 
   let put v mv =
-    let tid = S.get_tid () in
     acq mv.lock;
     match !(mv.state) with
     | Full (v', q) ->
@@ -95,7 +105,6 @@ module Make (S : SCHED) : S = struct
           S.resume t v
 
   let take mv =
-    let tid = S.get_tid () in
     acq mv.lock;
     match !(mv.state) with
     | Empty q ->

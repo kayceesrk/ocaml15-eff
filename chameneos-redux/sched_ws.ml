@@ -76,7 +76,7 @@ module Make (S : sig val num_domains : int end) : S = struct
   and dequeue () = dequeue_wid (Domain.self ())
 
   and spawn g (tid:int) =
-    CAS.incr num_threads;
+    ignore @@ CAS.incr num_threads;
     begin
       match g () with
       | () -> (CAS.decr num_threads; dequeue ())
@@ -113,7 +113,7 @@ module Make (S : sig val num_domains : int end) : S = struct
     for i = 1 to num_domains - 1 do
       Domain.spawn worker
     done ;
-    spawn (fun () -> CAS.incr started; f ()) (fresh_tid ())
+    spawn (fun () -> ignore @@ CAS.incr started; f ()) (fresh_tid ())
 
   let run f = run_with f S.num_domains
 
